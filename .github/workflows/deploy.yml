@@ -19,7 +19,7 @@ jobs:
         username: ${{ secrets.VPS_USER }}
         key: ${{ secrets.VPS_KEY }}
         source: "."
-        target: "/root/tipantuna_estefani/Chatbot-backeb"
+        target: "/root/tipantuna_estefani/chatbot-backen"
 
     - name: Run deploy commands on VPS
       uses: appleboy/ssh-action@v1.0.3
@@ -28,8 +28,8 @@ jobs:
         username: ${{ secrets.VPS_USER }}
         key: ${{ secrets.VPS_KEY }}
         script: |
-          cd /root/tipantuna_estefani/Chatbot-backeb
+          cd /root/tipantuna_estefani/chatbot-backen
           echo "$${{ secrets.ENV_FILE }}" > .env
           npm install
           npm run build
-          pm2 restart nestjs-Chatbot-backeb || pm2 start dist/main.js --name nestjs-blog-Chatbot-backeb
+          pm2 restart nestjs-chatbot-backend || pm2 start dist/main.js --name nestjs-chatbot-backend
