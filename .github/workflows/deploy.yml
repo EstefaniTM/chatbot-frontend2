@@ -30,6 +30,8 @@ jobs:
         script: |
           cd /root/tipantuna_estefani/chatbot-backen
           echo "$${{ secrets.ENV_FILE }}" > .env
-          npm install
+          npm install --production
           npm run build
-          pm2 restart nestjs-chatbot-backend || pm2 start dist/main.js --name nestjs-chatbot-backend
+          pm2 delete nestjs-chatbot-backend || true
+          pm2 delete nestjs-Chatbot-backeb || true
+          pm2 start dist/main.js --name nestjs-chatbot-backend
