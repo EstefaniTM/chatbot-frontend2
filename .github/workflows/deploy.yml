@@ -39,5 +39,5 @@ jobs:
           npm install --production
           npm run build
           pm2 delete nestjs-chatbot-backend || true
-          pm2 delete nestjs-Chatbot-backeb || true
+          pm2 delete nestjs-Chatbot-backend || true
           pm2 start dist/main.js --name nestjs-chatbot-backend
