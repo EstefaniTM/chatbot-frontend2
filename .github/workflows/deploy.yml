@@ -1,5 +1,4 @@
-name: 🚀 Deploy NestJS Blog Backend API to VPS
-
+name: 🚀 Deploy NestJS Chatbot Backend API to VPS
 on:
   push:
     branches: [main]
@@ -30,14 +29,22 @@ jobs:
         script: |
           cd /root/tipantuna_estefani/chatbot-backen
 
-          echo "Matar proceso en el puerto 3008..."
-          sudo lsof -t -i:3008 | xargs sudo kill -9  # Mata el proceso que usa el puerto 3008
-         
-          # Asegúrate de que el archivo .env se copie correctamente
+          echo "🔪 Matando proceso en el puerto 3008..."
+          sudo lsof -t -i:3008 | xargs sudo kill -9 || true
+
+          echo "📄 Configurando variables de entorno..."
           echo -e "${{ secrets.ENV_FILE }}" > .env
 
+          echo "📦 Instalando dependencias..."
           npm install --production
+
+          echo "🏗️ Compilando proyecto..."
           npm run build
+
+          echo "🔄 Reiniciando servicio..."
           pm2 delete nestjs-chatbot-backend || true
           pm2 delete nestjs-Chatbot-backend || true
           pm2 start dist/main.js --name nestjs-chatbot-backend
+          pm2 save
+
+          echo "✅ Deploy completado!"
