@@ -12,6 +12,8 @@ import {
   UseInterceptors,
   UploadedFile,
   InternalServerErrorException,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,17 +22,25 @@ import { SuccessResponseDto } from 'src/common/dto/response.dto';
 import { User } from './user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { OwnershipGuard } from '../auth/guards/ownership.guard';
+import { Roles } from '../decorators/roles.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // PÚBLICO - Registro de usuarios
   @Post()
   async create(@Body() dto: CreateUserDto) {
     const user = await this.usersService.create(dto);
     return new SuccessResponseDto('User created successfully', user);
   }
 
+  // PRIVADO - Solo admin puede ver todos los usuarios
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Get()
   async findAll(
     @Query('page') page = 1,
@@ -56,6 +66,8 @@ export class UsersController {
     });
   }
 
+  // PRIVADO - Usuario solo puede ver su propio perfil o admin puede ver cualquier perfil
+  @UseGuards(JwtAuthGuard, OwnershipGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const userId = parseInt(id);
@@ -66,6 +78,8 @@ export class UsersController {
     return new SuccessResponseDto('User retrieved successfully', user);
   }
 
+  // PRIVADO - Usuario solo puede editar su propio perfil o admin puede editar cualquier perfil
+  @UseGuards(JwtAuthGuard, OwnershipGuard)
   @Put(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     const userId = parseInt(id);
@@ -76,6 +90,8 @@ export class UsersController {
     return new SuccessResponseDto('User updated successfully', user);
   }
 
+  // PRIVADO - Usuario solo puede eliminar su propia cuenta o admin puede eliminar cualquier cuenta
+  @UseGuards(JwtAuthGuard, OwnershipGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     const userId = parseInt(id);
@@ -86,6 +102,8 @@ export class UsersController {
     return new SuccessResponseDto('User deleted successfully', { deleted: true });
   }
 
+  // PRIVADO - Usuario solo puede subir su propia foto o admin puede cambiar cualquier foto
+  @UseGuards(JwtAuthGuard, OwnershipGuard)
   @Put(':id/profile')
   @UseInterceptors(
     FileInterceptor('profile', {

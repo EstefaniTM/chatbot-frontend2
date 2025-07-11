@@ -29,7 +29,13 @@ jobs:
         key: ${{ secrets.VPS_KEY }}
         script: |
           cd /root/tipantuna_estefani/chatbot-backen
-          echo "$${{ secrets.ENV_FILE }}" > .env
+
+          echo "Matar proceso en el puerto 3008..."
+          sudo lsof -t -i:3008 | xargs sudo kill -9  # Mata el proceso que usa el puerto 3008
+         
+          # Asegúrate de que el archivo .env se copie correctamente
+          echo -e "${{ secrets.ENV_FILE }}" > .env
+
           npm install --production
           npm run build
           pm2 delete nestjs-chatbot-backend || true

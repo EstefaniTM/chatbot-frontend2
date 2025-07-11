@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,12 @@ export class UsersService {
 
   async create(dto: CreateUserDto): Promise<User | null> {
     try {
-      const user = this.userRepository.create(dto);
+      // Hashear la contraseña antes de guardar
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+      const user = this.userRepository.create({
+        ...dto,
+        password: hashedPassword,
+      });
       return await this.userRepository.save(user);
     } catch (err) {
       console.error('Error creating user:', err);
@@ -61,6 +67,15 @@ export class UsersService {
       return await this.userRepository.findOne({ where: { username } });
     } catch (err) {
       console.error('Error finding user by username:', err);
+      return null;
+    }
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    try {
+      return await this.userRepository.findOne({ where: { email } });
+    } catch (err) {
+      console.error('Error finding user by email:', err);
       return null;
     }
   }
