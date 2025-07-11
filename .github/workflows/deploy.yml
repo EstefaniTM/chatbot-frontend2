@@ -36,7 +36,7 @@ jobs:
           echo -e "${{ secrets.ENV_FILE }}" > .env
 
           echo "📦 Instalando dependencias..."
-          npm install --production
+          npm install
 
           echo "🏗️ Compilando proyecto..."
           npm run build
