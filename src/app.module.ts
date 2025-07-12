@@ -10,6 +10,7 @@ import { MessagesModule } from './messages/messages.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { MailModule } from './mail/mail.module';
 import { HuggingFaceModule } from './huggingface/huggingface.module';
+import { CargacsvModule } from './cargacsv/cargacsv.module';
 import { User } from './users/user.entity';
 
 @Module({
@@ -38,6 +39,7 @@ import { User } from './users/user.entity';
     ConversationsModule,
     MailModule,
     HuggingFaceModule,
+    CargacsvModule,
   ],
   controllers: [AppController],
   providers: [AppService],
