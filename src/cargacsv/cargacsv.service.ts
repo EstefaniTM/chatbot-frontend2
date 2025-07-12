@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cargacsv } from './cargacsv.entity';
 import { CreateCargacsvDto } from './dto/createCargacsv';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class CargacsvService {
@@ -47,5 +49,79 @@ export class CargacsvService {
       console.error('Error retrieving CSV upload:', err);
       return null;
     }
+  }
+
+  async delete(id: string): Promise<{ success: boolean; message: string }> {
+    try {
+      // Primero buscar el archivo en la base de datos
+      const csvRecord = await this.cargacsvModel.findById(id).exec();
+      
+      if (!csvRecord) {
+        return {
+          success: false,
+          message: 'Archivo CSV no encontrado en la base de datos'
+        };
+      }
+
+      // Construir la ruta del archivo
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      const filePath = path.join(uploadsDir, csvRecord.filename);
+
+      // Eliminar el archivo físico si existe
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+          console.log(`Archivo físico eliminado: ${filePath}`);
+        } catch (fileError) {
+          console.error('Error eliminando archivo físico:', fileError);
+          // Continuar con la eliminación de la base de datos aunque falle la eliminación del archivo
+        }
+      } else {
+        console.warn(`Archivo físico no encontrado: ${filePath}`);
+      }
+
+      // Eliminar el registro de la base de datos
+      await this.cargacsvModel.findByIdAndDelete(id).exec();
+
+      return {
+        success: true,
+        message: `Archivo CSV "${csvRecord.originalname}" eliminado exitosamente`
+      };
+
+    } catch (err) {
+      console.error('Error eliminando CSV upload:', err);
+      return {
+        success: false,
+        message: 'Error interno del servidor al eliminar el archivo'
+      };
+    }
+  }
+
+  async deleteMultiple(ids: string[]): Promise<{ 
+    success: boolean; 
+    message: string; 
+    results: { id: string; success: boolean; message: string }[] 
+  }> {
+    const results: { id: string; success: boolean; message: string }[] = [];
+    let successCount = 0;
+
+    for (const id of ids) {
+      const result = await this.delete(id);
+      results.push({
+        id,
+        success: result.success,
+        message: result.message
+      });
+      
+      if (result.success) {
+        successCount++;
+      }
+    }
+
+    return {
+      success: successCount > 0,
+      message: `${successCount} de ${ids.length} archivos eliminados exitosamente`,
+      results
+    };
   }
 }
