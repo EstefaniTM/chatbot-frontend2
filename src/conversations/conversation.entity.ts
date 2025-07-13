@@ -11,8 +11,8 @@ export enum ConversationStatus {
 
 @Schema({ collection: 'conversations' })
 export class Conversation extends Document {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: false })
-  user: User | Types.ObjectId;
+  @Prop({ type: String, required: false })
+  user: string;
 
   @Prop({ default: Date.now })
   started_at: Date;

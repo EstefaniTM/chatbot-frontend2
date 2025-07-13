@@ -7,12 +7,16 @@ import {
   Query,
   NotFoundException,
   InternalServerErrorException,
-  Delete
+  Delete,
+  Post
 } from '@nestjs/common';
 import { ConversationsService } from './conversations.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { Conversation } from './conversation.entity';
 import { SuccessResponseDto } from 'src/common/dto/response.dto';
+import { UseGuards, Request } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
 
 @Controller('conversations')
 export class ConversationsController {
@@ -20,10 +24,12 @@ export class ConversationsController {
 
   @HttpPost()
   async create(
-    @Body() createConversationDto: CreateConversationDto,
+  @Body() createConversationDto: CreateConversationDto,
+  @Request() req
   ): Promise<SuccessResponseDto<Conversation>> {
     const conversation = await this.conversationsService.create(
       createConversationDto,
+      req.user // Aquí pasas el usuario autenticado
     );
     if (!conversation)
       throw new NotFoundException('Error creating conversation');
