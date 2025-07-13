@@ -11,9 +11,10 @@ export class ConversationsService {
     private readonly conversationModel: Model<Conversation>,
   ) {}
 
-  async create(_createConversationDto: CreateConversationDto): Promise<Conversation | null> {
+    async create(createConversationDto: CreateConversationDto): Promise<Conversation | null> {
     try {
       const conversationData: Partial<Conversation> = {
+        ...createConversationDto, // <-- Esto toma title, description, metadata
         status: ConversationStatus.ACTIVE,
         started_at: new Date(),
       };
@@ -22,6 +23,15 @@ export class ConversationsService {
     } catch (err) {
       console.error('Error creating conversation:', err);
       return null;
+    }
+  }
+    async delete(id: string): Promise<boolean> {
+    try {
+      const result = await this.conversationModel.findByIdAndDelete(id).exec();
+      return !!result;
+    } catch (err) {
+      console.error('Error deleting conversation:', err);
+      return false;
     }
   }
 

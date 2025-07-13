@@ -7,6 +7,7 @@ import {
   Query,
   NotFoundException,
   InternalServerErrorException,
+  Delete
 } from '@nestjs/common';
 import { ConversationsService } from './conversations.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
@@ -63,5 +64,13 @@ export class ConversationsController {
       'Conversation retrieved successfully',
       conversation,
     );
+  }
+    @Delete(':id')
+  async delete(
+    @Param('id') id: string,
+  ): Promise<SuccessResponseDto<null>> {
+    const deleted = await this.conversationsService.delete(id);
+    if (!deleted) throw new NotFoundException('Conversation not found');
+    return new SuccessResponseDto('Conversation deleted successfully', null);
   }
 }
