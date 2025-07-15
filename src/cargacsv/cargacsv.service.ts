@@ -1,6 +1,8 @@
+
+import { parse } from 'csv-parse/sync';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Cargacsv } from './cargacsv.entity';
 import { CreateCargacsvDto } from './dto/createCargacsv';
 import * as fs from 'fs';
@@ -11,7 +13,21 @@ export class CargacsvService {
   constructor(
     @InjectModel(Cargacsv.name)
     private readonly cargacsvModel: Model<Cargacsv>,
+    @InjectModel('CsvRow')
+    private readonly csvRowModel: Model<any>,
   ) {}
+
+  // Guarda las filas del CSV en la colección CsvRow
+  async saveCsvRows(csvContent: string, csvId: Types.ObjectId) {
+    const records = parse(csvContent, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+    });
+    const rows = records.map((row: any) => ({ ...row, csvId }));
+    await this.csvRowModel.insertMany(rows);
+    return rows.length;
+  }
 
   async create(createCargacsvDto: CreateCargacsvDto): Promise<Cargacsv | null> {
     try {

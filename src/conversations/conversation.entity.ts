@@ -25,6 +25,15 @@ export class Conversation extends Document {
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Message' }], default: [] })
   messages: (Message | Types.ObjectId)[];
+
+  // <-- Agrega esto:
+  @Prop({ required: false })
+  description?: string;
+
+    // <-- Agrega esto:
+  @Prop({ required: true })
+  title: string;
+
 }
 
 export const ConversationSchema = SchemaFactory.createForClass(Conversation);

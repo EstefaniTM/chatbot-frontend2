@@ -14,5 +14,6 @@ import { Message, MessageSchema } from '../messages/message.entity';
   ],
   controllers: [ConversationsController],
   providers: [ConversationsService],
+  exports: [ConversationsService]
 })
 export class ConversationsModule {}

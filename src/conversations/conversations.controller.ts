@@ -29,7 +29,7 @@ export class ConversationsController {
   ): Promise<SuccessResponseDto<Conversation>> {
     const conversation = await this.conversationsService.create(
       createConversationDto,
-      req.user // Aquí pasas el usuario autenticado
+      req.user
     );
     if (!conversation)
       throw new NotFoundException('Error creating conversation');

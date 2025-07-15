@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Conversation, ConversationStatus } from './conversation.entity';
 import { CreateConversationDto } from './dto/create-conversation.dto';
+import { User } from 'src/users/user.entity';
 
 @Injectable()
 export class ConversationsService {
@@ -11,11 +12,12 @@ export class ConversationsService {
     private readonly conversationModel: Model<Conversation>,
   ) {}
 
-    async create(createConversationDto: CreateConversationDto): Promise<Conversation | null> {
+    async create(createConversationDto: CreateConversationDto, user: User): Promise<Conversation | null> {
     try {
       const conversationData: Partial<Conversation> = {
         ...createConversationDto, // <-- Esto toma title, description, metadata
         status: ConversationStatus.ACTIVE,
+        user: user.id.toString(),
         started_at: new Date(),
       };
       const conversation = new this.conversationModel(conversationData);

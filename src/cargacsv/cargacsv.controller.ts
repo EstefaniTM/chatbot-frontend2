@@ -9,24 +9,48 @@ import {
   NotFoundException,
   InternalServerErrorException,
   BadRequestException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { CargacsvService } from './cargacsv.service';
 import { CreateCargacsvDto } from './dto/createCargacsv';
 import { DeleteMultipleDto } from './dto/deleteCargacsv';
 import { Cargacsv } from './cargacsv.entity';
 import { SuccessResponseDto } from 'src/common/dto/response.dto';
+import { Types } from 'mongoose';
 
 @Controller('csv-uploads')
 export class CargacsvController {
   constructor(private readonly cargacsvService: CargacsvService) {}
 
   @HttpPost()
-  async create(
-    @Body() createCargacsvDto: CreateCargacsvDto,
+  @UseInterceptors(FileInterceptor('file', { dest: './uploads' }))
+  async uploadCsv(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any
   ): Promise<SuccessResponseDto<Cargacsv>> {
-    const csv = await this.cargacsvService.create(createCargacsvDto);
+    if (!file) {
+      throw new BadRequestException('No se recibió ningún archivo CSV');
+    }
+    // Guardar los metadatos y el nombre del archivo
+    const csvInfo = {
+      filename: file.filename,
+      originalname: file.originalname,
+      uploadedBy: body.uploadedBy,
+      status: body.status || 'pending',
+      errorMessage: body.errorMessage || undefined
+    };
+    const csv = await this.cargacsvService.create(csvInfo);
     if (!csv)
       throw new NotFoundException('Error creating CSV upload');
+
+    // Leer y guardar el contenido del CSV en la base de datos
+    const filePath = path.join(process.cwd(), 'uploads', file.filename);
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    await this.cargacsvService.saveCsvRows(fileContent, new Types.ObjectId(String(csv._id)));
     return new SuccessResponseDto(
       'CSV upload created successfully',
       csv,

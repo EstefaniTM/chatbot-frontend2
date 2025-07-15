@@ -12,6 +12,8 @@ import { MailModule } from './mail/mail.module';
 import { HuggingFaceModule } from './huggingface/huggingface.module';
 import { CargacsvModule } from './cargacsv/cargacsv.module';
 import { User } from './users/user.entity';
+import { ChatbotModule } from './chatbot/chatbot.module';
+
 
 @Module({
   imports: [
@@ -40,6 +42,8 @@ import { User } from './users/user.entity';
     MailModule,
     HuggingFaceModule,
     CargacsvModule,
+    ChatbotModule,
+
   ],
   controllers: [AppController],
   providers: [AppService],

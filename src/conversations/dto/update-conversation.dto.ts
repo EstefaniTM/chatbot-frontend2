@@ -12,4 +12,8 @@ export class UpdatePostDto {
   @IsOptional()
   @IsUUID()
   categoryId?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
