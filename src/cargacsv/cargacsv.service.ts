@@ -19,14 +19,20 @@ export class CargacsvService {
 
   // Guarda las filas del CSV en la colección CsvRow
   async saveCsvRows(csvContent: string, csvId: Types.ObjectId) {
-    const records = parse(csvContent, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-    });
-    const rows = records.map((row: any) => ({ ...row, csvId }));
-    await this.csvRowModel.insertMany(rows);
-    return rows.length;
+    try {
+      const records = parse(csvContent, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      });
+      const rows = records.map((row: any) => ({ ...row, csvId }));
+      const result = await this.csvRowModel.insertMany(rows);
+      console.log(`[CSV] Se insertaron ${result.length} filas para csvId: ${csvId}`);
+      return rows.length;
+    } catch (error) {
+      console.error('[CSV] Error al parsear o guardar filas:', error);
+      return 0;
+    }
   }
 
   async create(createCargacsvDto: CreateCargacsvDto): Promise<Cargacsv | null> {
