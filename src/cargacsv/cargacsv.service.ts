@@ -10,25 +10,28 @@ import * as path from 'path';
 
 @Injectable()
 export class CargacsvService {
+
   constructor(
     @InjectModel(Cargacsv.name)
     private readonly cargacsvModel: Model<Cargacsv>,
-    @InjectModel('CsvRow')
-    private readonly csvRowModel: Model<any>,
   ) {}
 
-  // Guarda las filas del CSV en la colección CsvRow
-  async saveCsvRows(csvContent: string, csvId: Types.ObjectId) {
+
+  // Guarda las filas del CSV como un array en el campo 'data' del documento principal
+  async saveCsvRowsInDocument(csvContent: string, csvId: Types.ObjectId) {
     try {
       const records = parse(csvContent, {
         columns: true,
         skip_empty_lines: true,
         trim: true,
       });
-      const rows = records.map((row: any) => ({ ...row, csvId }));
-      const result = await this.csvRowModel.insertMany(rows);
-      console.log(`[CSV] Se insertaron ${result.length} filas para csvId: ${csvId}`);
-      return rows.length;
+      const result = await this.cargacsvModel.findByIdAndUpdate(
+        csvId,
+        { $set: { data: records, status: 'processed' } },
+        { new: true }
+      );
+      console.log(`[CSV] Se guardaron ${records.length} filas en el documento csvId: ${csvId}`);
+      return records.length;
     } catch (error) {
       console.error('[CSV] Error al parsear o guardar filas:', error);
       return 0;

@@ -33,8 +33,17 @@ export class CargacsvController {
     @Body() body: any
   ): Promise<SuccessResponseDto<Cargacsv>> {
     if (!file) {
+      console.error('[CSV] No se recibió ningún archivo CSV');
       throw new BadRequestException('No se recibió ningún archivo CSV');
     }
+    console.log('[CSV] Archivo recibido:', {
+      filename: file.filename,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size
+    });
+    console.log('[CSV] Body recibido:', body);
+
     // Guardar los metadatos y el nombre del archivo
     const csvInfo = {
       filename: file.filename,
@@ -44,13 +53,21 @@ export class CargacsvController {
       errorMessage: body.errorMessage || undefined
     };
     const csv = await this.cargacsvService.create(csvInfo);
-    if (!csv)
+    if (!csv) {
+      console.error('[CSV] Error creando metadatos en la base de datos');
       throw new NotFoundException('Error creating CSV upload');
+    }
 
     // Leer y guardar el contenido del CSV en la base de datos
     const filePath = path.join(process.cwd(), 'uploads', file.filename);
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-    await this.cargacsvService.saveCsvRows(fileContent, new Types.ObjectId(String(csv._id)));
+    console.log('[CSV] Ruta del archivo:', filePath);
+    try {
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      console.log('[CSV] Primeros 200 caracteres del archivo:', fileContent.slice(0, 200));
+      await this.cargacsvService.saveCsvRowsInDocument(fileContent, new Types.ObjectId(String(csv._id)));
+    } catch (err) {
+      console.error('[CSV] Error leyendo o guardando el archivo:', err);
+    }
     return new SuccessResponseDto(
       'CSV upload created successfully',
       csv,

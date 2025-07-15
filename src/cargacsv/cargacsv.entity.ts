@@ -15,8 +15,13 @@ export class Cargacsv extends Document {
   @Prop({ default: Date.now })
   uploadedAt: Date;
 
+
   @Prop({ default: 'pending' })
   status: 'pending' | 'processed' | 'error';
+
+  // Nuevo campo para guardar los datos del CSV como array de objetos JSON
+  @Prop({ type: [Object], default: [] })
+  data: Record<string, any>[];
 
   @Prop()
   errorMessage?: string;
