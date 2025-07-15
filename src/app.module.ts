@@ -2,6 +2,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
+import { InventoryModule } from './inventory/inventory.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -43,7 +44,7 @@ import { ChatbotModule } from './chatbot/chatbot.module';
     HuggingFaceModule,
     CargacsvModule,
     ChatbotModule,
-
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
