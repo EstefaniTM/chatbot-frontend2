@@ -10,8 +10,14 @@ async function bootstrap() {
 
   // Habilitar CORS antes de las otras configuraciones
   app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3008'], // Permitir frontend en múltiples puertos
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+origin: [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3008',
+  'http://localhost:3009',
+
+  'https://chatbot-frontend.desarrollo-software.xyz'
+],    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
   });
