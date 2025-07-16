@@ -3,8 +3,10 @@ import {
   Post,
   Body,
   InternalServerErrorException,
+  UseGuards,
 } from '@nestjs/common';
 import { MessagesService } from './menssages.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { SuccessResponseDto } from 'src/common/dto/response.dto';
 
@@ -12,6 +14,7 @@ import { SuccessResponseDto } from 'src/common/dto/response.dto';
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async create(@Body() dto: CreateMessageDto) {
     const message = await this.messagesService.create(dto);

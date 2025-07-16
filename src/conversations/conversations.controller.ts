@@ -22,6 +22,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class ConversationsController {
   constructor(private readonly conversationsService: ConversationsService) {}
 
+  @UseGuards(JwtAuthGuard)
   @HttpPost()
   async create(
   @Body() createConversationDto: CreateConversationDto,
@@ -39,6 +40,7 @@ export class ConversationsController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(
     @Query('page') page = 1,
@@ -56,6 +58,7 @@ export class ConversationsController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(
     @Param('id') id: string,
@@ -71,7 +74,8 @@ export class ConversationsController {
       conversation,
     );
   }
-    @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
   async delete(
     @Param('id') id: string,
   ): Promise<SuccessResponseDto<null>> {

@@ -15,16 +15,23 @@ export class UsersService {
 
   async create(dto: CreateUserDto): Promise<User | null> {
     try {
+      // Verificar si es el primer usuario
+      const userCount = await this.userRepository.count();
       // Hashear la contraseña antes de guardar
       const hashedPassword = await bcrypt.hash(dto.password, 10);
+      let role = 'user';
+      if (userCount === 0) {
+        role = 'admin';
+      }
       const user = this.userRepository.create({
         ...dto,
         password: hashedPassword,
+        role,
       });
       return await this.userRepository.save(user);
     } catch (err) {
       console.error('Error creating user:', err);
-      return null;
+      throw new Error(err?.detail || err?.message || 'Error creating user');
     }
   }
 

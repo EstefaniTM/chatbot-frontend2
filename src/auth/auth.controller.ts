@@ -31,13 +31,17 @@ export class AuthController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     // Solo acepta email y password
-    const token = await this.authService.register(createUserDto);
-    if (!token) {
-      throw new BadRequestException('Failed to register user');
+    try {
+      const token = await this.authService.register(createUserDto);
+      if (!token) {
+        throw new BadRequestException('Failed to register user');
+      }
+      return new SuccessResponseDto('Registration successful', {
+        access_token: token,
+      });
+    } catch (err) {
+      throw new BadRequestException(err?.message || JSON.stringify(err) || 'Failed to register user');
     }
-    return new SuccessResponseDto('Registration successful', {
-      access_token: token,
-    });
   }
   @UseGuards(JwtAuthGuard)
   @Get('me')

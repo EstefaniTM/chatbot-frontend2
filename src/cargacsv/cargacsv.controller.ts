@@ -1,3 +1,4 @@
+
 import {
   Controller,
   Post as HttpPost,
@@ -11,21 +12,22 @@ import {
   BadRequestException,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
-import * as fs from 'fs';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import * as path from 'path';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CargacsvService } from './cargacsv.service';
-import { CreateCargacsvDto } from './dto/createCargacsv';
 import { DeleteMultipleDto } from './dto/deleteCargacsv';
 import { Cargacsv } from './cargacsv.entity';
 import { SuccessResponseDto } from 'src/common/dto/response.dto';
-import { Types } from 'mongoose';
 
 @Controller('csv-uploads')
 export class CargacsvController {
   constructor(private readonly cargacsvService: CargacsvService) {}
 
+
+  @UseGuards(JwtAuthGuard)
   @HttpPost()
   @UseInterceptors(FileInterceptor('file', { dest: './uploads' }))
   async uploadCsv(
@@ -61,36 +63,33 @@ export class CargacsvController {
     // Leer y guardar el contenido del CSV en la base de datos
     const filePath = path.join(process.cwd(), 'uploads', file.filename);
     console.log('[CSV] Ruta del archivo:', filePath);
-    try {
-      const fileContent = fs.readFileSync(filePath, 'utf8');
-      console.log('[CSV] Primeros 200 caracteres del archivo:', fileContent.slice(0, 200));
-      await this.cargacsvService.saveCsvRowsInDocument(fileContent, new Types.ObjectId(String(csv._id)));
-    } catch (err) {
-      console.error('[CSV] Error leyendo o guardando el archivo:', err);
-    }
+    // Aquí podrías agregar lógica para procesar el archivo si es necesario
+
     return new SuccessResponseDto(
-      'CSV upload created successfully',
+      'Archivo CSV subido exitosamente',
       csv,
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ): Promise<SuccessResponseDto<{ data: Cargacsv[]; total: number }>> {
-    const csvs = await this.cargacsvService.findAll(Number(page), Number(limit));
+    const result = await this.cargacsvService.findAll(Number(page), Number(limit));
 
-    if (!csvs) {
+    if (!result || !result.data) {
       throw new InternalServerErrorException('Error retrieving CSV uploads');
     }
 
     return new SuccessResponseDto(
       'CSV uploads retrieved successfully',
-      csvs,
+      result,
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(
     @Param('id') id: string,
@@ -107,6 +106,7 @@ export class CargacsvController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteOne(
     @Param('id') id: string,
@@ -127,6 +127,7 @@ export class CargacsvController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete()
   async deleteMultiple(
     @Body() deleteMultipleDto: DeleteMultipleDto,

@@ -9,7 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { MessagesModule } from './messages/messages.module';
 import { ConversationsModule } from './conversations/conversations.module';
-import { MailModule } from './mail/mail.module';
+// import { MailModule } from './mail/mail.module';
 import { HuggingFaceModule } from './huggingface/huggingface.module';
 import { CargacsvModule } from './cargacsv/cargacsv.module';
 import { User } from './users/user.entity';
@@ -40,7 +40,7 @@ import { ChatbotModule } from './chatbot/chatbot.module';
     UsersModule,
     MessagesModule,
     ConversationsModule,
-    MailModule,
+    // MailModule,
     HuggingFaceModule,
     CargacsvModule,
     ChatbotModule,

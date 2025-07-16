@@ -29,7 +29,7 @@ origin: [
 
   app.useStaticAssets(join(__dirname, '..', 'public')); // 👈 Habilita acceso público a /public
 
-  await app.listen(process.env.PORT || 3008);
+  await app.listen(3008);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 void bootstrap();
