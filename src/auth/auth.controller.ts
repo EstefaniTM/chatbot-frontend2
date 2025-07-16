@@ -30,7 +30,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
-    // Solo acepta username, email y password
+    // Solo acepta email y password
     const token = await this.authService.register(createUserDto);
     if (!token) {
       throw new BadRequestException('Failed to register user');
