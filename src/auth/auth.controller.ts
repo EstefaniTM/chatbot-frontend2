@@ -4,11 +4,15 @@ import {
   Body,
   BadRequestException,
   UnauthorizedException,
+  Get,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { SuccessResponseDto } from 'src/common/dto/response.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -16,6 +20,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
+    debugger;
     const token = await this.authService.login(loginDto);
     if (!token) {
       throw new UnauthorizedException('Invalid credentials');
@@ -25,6 +30,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
+    // Solo acepta username, email y password
     const token = await this.authService.register(createUserDto);
     if (!token) {
       throw new BadRequestException('Failed to register user');
@@ -32,5 +38,11 @@ export class AuthController {
     return new SuccessResponseDto('Registration successful', {
       access_token: token,
     });
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getProfile(@Request() req) {
+    // Devuelve el usuario autenticado extraído del token
+    return { user: req.user };
   }
 }
