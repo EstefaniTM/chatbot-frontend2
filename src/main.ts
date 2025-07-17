@@ -14,7 +14,8 @@ origin: [
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:3008',
-  'http://localhost:3009',
+  'http://localhost:3010', // 👈 Asegúrate de que este puerto sea correcto
+
 
   'https://chatbot-frontend.desarrollo-software.xyz'
 ],    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
