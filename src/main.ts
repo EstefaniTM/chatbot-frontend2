@@ -12,7 +12,7 @@ async function bootstrap() {
   app.enableCors({
 origin: [
   'http://localhost:3000',
-  'http://localhost:3001',
+  'http://localhost:3009',
   'http://localhost:3008',
   'http://localhost:3010', // 👈 Asegúrate de que este puerto sea correcto
 
