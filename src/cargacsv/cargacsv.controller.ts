@@ -13,6 +13,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import * as path from 'path';
@@ -32,7 +33,8 @@ export class CargacsvController {
   @UseInterceptors(FileInterceptor('file', { dest: './uploads' }))
   async uploadCsv(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: any
+    @Body() body: any,
+    @Req() req: any
   ): Promise<SuccessResponseDto<Cargacsv>> {
     if (!file) {
       console.error('[CSV] No se recibió ningún archivo CSV');
@@ -46,11 +48,12 @@ export class CargacsvController {
     });
     console.log('[CSV] Body recibido:', body);
 
-    // Guardar los metadatos y el nombre del archivo
+    // Guardar los metadatos y el nombre del archivo, asociando el usuario autenticado
+    const userId = req.user?.id || req.user?._id || req.user?.sub;
     const csvInfo = {
       filename: file.filename,
       originalname: file.originalname,
-      uploadedBy: body.uploadedBy,
+      uploadedBy: userId,
       status: body.status || 'pending',
       errorMessage: body.errorMessage || undefined
     };
@@ -76,8 +79,10 @@ export class CargacsvController {
   async findAll(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
+    @Req() req: any
   ): Promise<SuccessResponseDto<{ data: Cargacsv[]; total: number }>> {
-    const result = await this.cargacsvService.findAll(Number(page), Number(limit));
+    const userId = req.user?.id || req.user?._id || req.user?.sub;
+    const result = await this.cargacsvService.findAllByUser(userId, Number(page), Number(limit));
 
     if (!result || !result.data) {
       throw new InternalServerErrorException('Error retrieving CSV uploads');

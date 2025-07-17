@@ -48,21 +48,22 @@ export class CargacsvService {
     }
   }
 
-  async findAll(page = 1, limit = 10): Promise<{ data: Cargacsv[]; total: number } | null> {
+
+  async findAllByUser(userId: string, page = 1, limit = 10): Promise<{ data: Cargacsv[]; total: number } | null> {
     try {
       const skip = (page - 1) * limit;
       const [data, total] = await Promise.all([
         this.cargacsvModel
-          .find()
+          .find({ uploadedBy: userId })
           .sort({ uploadedAt: -1 })
           .skip(skip)
           .limit(limit)
           .exec(),
-        this.cargacsvModel.countDocuments().exec(),
+        this.cargacsvModel.countDocuments({ uploadedBy: userId }).exec(),
       ]);
       return { data, total };
     } catch (err) {
-      console.error('Error retrieving CSV uploads:', err);
+      console.error('Error retrieving CSV uploads by user:', err);
       return null;
     }
   }
