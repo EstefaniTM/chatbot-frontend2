@@ -14,7 +14,8 @@ async function bootstrap() {
     'http://localhost:3009',
     'http://localhost:3008',
     'http://localhost:3010', // 👈 Asegúrate de que este puerto sea correcto
-    'https://chatbot-frontend.desarrollo-software.xyz'
+    'https://chatbot-frontend.desarrollo-software.xyz',
+    'https://estefanitipantunamatiag.netlify.app'
   ];
   console.log('[CORS] Orígenes permitidos:', allowedOrigins);
   app.enableCors({
